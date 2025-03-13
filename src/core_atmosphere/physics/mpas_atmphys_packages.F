@@ -185,7 +185,10 @@
     fdda_in = .true.
  elseif(config_fdda_scheme == 'analysis') then
     fdda_in = .true.
+ elseif(config_fdda_scheme == 'obs') then
+    fdda_in = .true.
  endif
+
 
  call mpas_log_write('    fdda_in                 = $l', logicArgs=(/fdda_in/))
  call mpas_log_write('')

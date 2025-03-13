@@ -170,7 +170,8 @@
 !fdda scheme:
  if(.not. (config_fdda_scheme .eq. 'off'        .or. &
            config_fdda_scheme .eq. 'analysis'   .or. &
-           config_fdda_scheme .eq. 'scaled'     )) then
+           config_fdda_scheme .eq. 'scaled'   .or. &
+           config_fdda_scheme .eq. 'obs'     )) then
     write(mpas_err_message,'(A,A10)') 'illegal value for config_fdda_scheme:', &
           trim(config_fdda_scheme)
     call physics_error_fatal(mpas_err_message)

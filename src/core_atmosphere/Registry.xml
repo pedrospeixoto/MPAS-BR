@@ -403,7 +403,7 @@
                 <package name="cu_tiedtke_in" description="parameterization of Tiedtke convection."/>
                 <package name="bl_ysu_in" description="parameterization of YSU Planetary Boundary Layer."/>
                 <package name="bl_mynn_in" description="parameterization of MYNN Planetary Boundary Layer."/>
-				<package name="fdda_in" description="Analysis nudging"/>
+				<package name="fdda_in" description="nudging"/>
                 <package name="iau" description="Incremental Analysis Update"/>
                 <package name="limited_area" description="Limited-area simulations, which have lateral boundaries"/>
                 <package name="jedi_da" description="Data Assimilation in JEDI framework"/>
