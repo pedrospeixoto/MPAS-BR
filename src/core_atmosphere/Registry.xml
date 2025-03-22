@@ -251,6 +251,17 @@
                      units="-"
                      description="Coefficient for the divergent component of the Laplacian filter of momentum in the relaxation zone"
                      possible_values="Positive real values"/>
+
+                <nml_option name="config_custom_reconstruct" type="logical" default_value="false"
+                     units="-"
+                     description="Whether to use custom velocity reconstruction coefficients given by the grid file"
+                     possible_values=".true. or .false."/>
+
+                <nml_option name="config_ke_use_reconstructed" type="logical" default_value="false"
+                     units="-"
+                     description="Whether to use the cell reconstructed velocity field to compute the cell kinetic energy"
+                     possible_values=".true. or .false."/>
+
         </nml_record>
 
         <nml_record name="damping" in_defaults="true">
@@ -295,7 +306,7 @@
                      units="-"
                      description="Whether to apply lateral boundary conditions"
                      possible_values="true or false; this option must be set to true for limited-area simulations and false for global simulations"/>
-	</nml_record>
+        </nml_record>
 
         <nml_record name="io" in_defaults="true">
                 <nml_option name="config_restart_timestamp_name" type="character" default_value="restart_timestamp" in_defaults="false"
@@ -374,7 +385,7 @@
                      units="s"
                      description="Length of window over which analysis increments are applied"
                      possible_values="Non-negative real values"/>
-	</nml_record>
+        </nml_record>
 
         <nml_record name="assimilation" in_defaults="false">
                 <nml_option name="config_jedi_da" type="logical" default_value="false"
@@ -1211,7 +1222,8 @@
 			<var name="tslb"/>
 			<var name="h_oml_initial"/>
 #endif
-                </stream>
+        </stream>
+
 	</streams>
 
 

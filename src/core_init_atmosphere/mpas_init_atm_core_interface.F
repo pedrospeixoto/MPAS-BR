@@ -121,6 +121,7 @@ module init_atm_core_interface
       logical, pointer :: mp_thompson_aers_in
       integer, pointer :: config_init_case
       logical, pointer :: noahmp, config_noahmp_static
+      logical, pointer :: config_custom_reconstruct, custom_reconstruct
 
 
       ierr = 0
@@ -130,6 +131,7 @@ module init_atm_core_interface
       call mpas_pool_get_config(configs, 'config_native_gwd_static', config_native_gwd_static)
       call mpas_pool_get_config(configs, 'config_vertical_grid', config_vertical_grid)
       call mpas_pool_get_config(configs, 'config_met_interp', config_met_interp)
+      call mpas_pool_get_config(configs, 'config_custom_reconstruct', config_custom_reconstruct)
 
       nullify(initial_conds)
       call mpas_pool_get_package(packages, 'initial_condsActive', initial_conds)
@@ -161,6 +163,9 @@ module init_atm_core_interface
       nullify(mp_thompson_aers_in)
       call mpas_pool_get_package(packages, 'mp_thompson_aers_inActive', mp_thompson_aers_in)
 
+      nullify(custom_reconstruct)
+      call mpas_pool_get_package(packages, 'custom_reconstructActive', custom_reconstruct)
+
       if (.not. associated(initial_conds) .or. &
           .not. associated(sfc_update) .or. &
           .not. associated(gwd_stage_in) .or. &
@@ -169,13 +174,18 @@ module init_atm_core_interface
           .not. associated(vertical_stage_out) .or. &
           .not. associated(met_stage_in) .or. &
           .not. associated(met_stage_out) .or. &
-          .not. associated(mp_thompson_aers_in)) then
+          .not. associated(mp_thompson_aers_in) .or. &
+          .not. associated(custom_reconstruct)) then
          call mpas_log_write('********************************************************************************', messageType=MPAS_LOG_ERR)
          call mpas_log_write('* Error while setting up packages for init_atmosphere core.',                      messageType=MPAS_LOG_ERR)
          call mpas_log_write('********************************************************************************', messageType=MPAS_LOG_ERR)
          ierr = 1
          return
       end if
+
+      if (config_custom_reconstruct) then
+         custom_reconstruct = .true.
+      endif
 
       if (config_init_case == 8) then
          initial_conds = .false.

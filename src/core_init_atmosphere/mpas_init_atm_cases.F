@@ -2905,6 +2905,8 @@ module init_atm_cases
       character (len=StrKIND) :: errstring
       character (len=StrKIND), pointer :: config_interface_projection
 
+      logical, pointer :: config_custom_reconstruct
+
       call mpas_pool_get_config(configs, 'config_met_prefix', config_met_prefix)
       call mpas_pool_get_config(configs, 'config_start_time', config_start_time)
       call mpas_pool_get_config(configs, 'config_met_interp', config_met_interp)
@@ -2923,6 +2925,7 @@ module init_atm_cases
       call mpas_pool_get_config(configs, 'config_coef_3rd_order', config_coef_3rd_order)
       call mpas_pool_get_config(configs, 'config_blend_bdy_terrain', config_blend_bdy_terrain)
       call mpas_pool_get_config(configs, 'config_interface_projection', config_interface_projection)
+      call mpas_pool_get_config(configs, 'config_custom_reconstruct', config_custom_reconstruct)
       
       call mpas_pool_get_config(configs, 'config_extrap_airtemp', config_extrap_airtemp)
       if (trim(config_extrap_airtemp) == 'constant') then
@@ -4818,7 +4821,7 @@ call mpas_log_write('Done with soil consistency check')
       ! Reconstruct zonal and meridional winds for diagnostic puposes:
       !
       call mpas_rbf_interp_initialize(mesh)
-      call mpas_init_reconstruct(mesh)
+      if (.not. config_custom_reconstruct) call mpas_init_reconstruct(mesh)
       call mpas_reconstruct(mesh, u,                 &
                             uReconstructX,           &
                             uReconstructY,           &

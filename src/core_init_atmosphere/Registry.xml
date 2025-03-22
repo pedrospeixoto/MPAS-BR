@@ -111,6 +111,16 @@
                      description="projecting layer values to the interface, linear vertical interpolation or integral" 
                      possible_values="'linear_interpolation' or 'layer_integral' (layer average value)"/>
 
+                <nml_option name="config_custom_reconstruct" type="logical" default_value="false"
+                     units="-"
+                     description="Whether to use custom velocity reconstruction coefficients given by the grid file"
+                     possible_values=".true. or .false."/>
+
+                <nml_option name="config_ke_use_reconstructed" type="logical" default_value="false"
+                     units="-"
+                     description="Whether to use the cell reconstructed velocity field to compute the cell kinetic energy"
+                     possible_values=".true. or .false."/>
+
         </nml_record>
 
         <nml_record name="dimensions" in_defaults="true">
@@ -368,6 +378,7 @@
                 <package name="first_guess_field" description="3-d atmospheric or land-surface fields on first-guess levels"/>
                 <package name="mp_thompson_aers_in" description="initialization of GOCART-based Thompson water- and ice-friendly aerosols"/>
                 <package name="noahmp" description="Whether to process, read, and write static fields only required by Noah-MP"/>
+                <package name="custom_reconstruct" description="Active when custom coeffs_reconstruct will be used"/>
         </packages>
 
 
@@ -460,7 +471,7 @@
                         <var name="defc_b" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="cell_gradient_coef_x" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="cell_gradient_coef_y" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
-                        <var name="coeffs_reconstruct" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
+                        <var name="coeffs_reconstruct" packages="gwd_stage_in;vertical_stage_in;met_stage_in;custom_reconstruct"/>
                         <var name="cf1" packages="met_stage_in"/>
                         <var name="cf2" packages="met_stage_in"/>
                         <var name="cf3" packages="met_stage_in"/>

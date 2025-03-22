@@ -417,7 +417,7 @@ module atm_core
       integer, dimension(:), pointer :: vertexSolveThreadStart, vertexSolveThreadEnd
 
 
-      logical, pointer :: config_do_restart, config_do_DAcycling
+      logical, pointer :: config_do_restart, config_do_DAcycling, config_custom_reconstruct, config_ke_use_reconstructed
 
       call atm_compute_signs(mesh)
    
@@ -517,8 +517,11 @@ module atm_core
       deallocate(ke_vertex)
       deallocate(ke_edge)
 
+      call mpas_pool_get_config(block % configs, 'config_custom_reconstruct', config_custom_reconstruct)
       call mpas_rbf_interp_initialize(mesh)
-      call mpas_init_reconstruct(mesh)
+      if (.not. config_custom_reconstruct) call mpas_init_reconstruct(mesh)
+
+      call mpas_pool_get_config(block % configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
 
       call mpas_pool_get_array(state, 'u', u, 1)
       call mpas_pool_get_array(diag, 'uReconstructX', uReconstructX)
@@ -526,12 +529,13 @@ module atm_core
       call mpas_pool_get_array(diag, 'uReconstructZ', uReconstructZ)
       call mpas_pool_get_array(diag, 'uReconstructZonal', uReconstructZonal)
       call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
-      call mpas_reconstruct(mesh, u,                   &
-                            uReconstructX,             &
-                            uReconstructY,             &
-                            uReconstructZ,             &
-                            uReconstructZonal,         &
-                            uReconstructMeridional     &
+      call mpas_reconstruct(mesh, u,                                 &
+                            uReconstructX,                           &
+                            uReconstructY,                           &
+                            uReconstructZ,                           &
+                            uReconstructZonal,                       &
+                            uReconstructMeridional,                  &
+                            includeHalos=config_ke_use_reconstructed &
                            )
    
 #ifdef DO_PHYSICS

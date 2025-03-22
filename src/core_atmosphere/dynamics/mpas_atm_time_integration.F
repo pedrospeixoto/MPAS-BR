@@ -770,6 +770,8 @@ module atm_time_integration
       type (field2DReal), pointer :: tend_ru_physicsField, tend_rtheta_physicsField, tend_rho_physicsField
 #endif
 
+      logical, pointer :: config_ke_use_reconstructed
+
       real (kind=RKIND)  :: time_dyn_step
       logical, parameter :: debug = .false.
 
@@ -792,6 +794,7 @@ module atm_time_integration
       call mpas_pool_get_config(block % configs, 'config_microp_scheme', config_microp_scheme)
       call mpas_pool_get_config(block % configs, 'config_convection_scheme', config_convection_scheme)
 #endif
+      call mpas_pool_get_config(block % configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
 
       !
       ! Retrieve field structures
@@ -1452,12 +1455,13 @@ module atm_time_integration
       call mpas_pool_get_array(diag, 'uReconstructZonal', uReconstructZonal)
       call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
 
-      call mpas_reconstruct(mesh, u,                &
-                            uReconstructX,          &
-                            uReconstructY,          &
-                            uReconstructZ,          &
-                            uReconstructZonal,      &
-                            uReconstructMeridional  &
+      call mpas_reconstruct(mesh, u,                                 &
+                            uReconstructX,                           &
+                            uReconstructY,                           &
+                            uReconstructZ,                           &
+                            uReconstructZonal,                       &
+                            uReconstructMeridional,                  &
+                            includeHalos=config_ke_use_reconstructed &
                            )
 
 
@@ -5766,16 +5770,18 @@ module atm_time_integration
       real (kind=RKIND), dimension(:), pointer :: dvEdge, dcEdge, invDvEdge, invDcEdge
       real (kind=RKIND), dimension(:,:), pointer :: weightsOnEdge, kiteAreasOnVertex, h_edge, h, u, v, &
                                                     vorticity, ke, pv_edge, pv_vertex, pv_cell, gradPVn, gradPVt, &
-                                                    divergence
+                                                    divergence, uReconstructZonal, uReconstructMeridional
       integer, dimension(:,:), pointer :: cellsOnEdge, cellsOnVertex, verticesOnEdge, edgesOnCell, edgesOnEdge, edgesOnVertex, &
                                           kiteForCell, verticesOnCell
       real (kind=RKIND), dimension(:,:), pointer :: edgesOnVertex_sign, edgesOnCell_sign
       integer, dimension(:), pointer :: nEdgesOnCell, nEdgesOnEdge
 
       real (kind=RKIND), pointer :: config_apvm_upwinding
+      logical, pointer :: config_ke_use_reconstructed
 
 
       call mpas_pool_get_config(configs, 'config_apvm_upwinding', config_apvm_upwinding)
+      call mpas_pool_get_config(configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
 
       call mpas_pool_get_array(state, 'rho_zz', h, time_lev)
       call mpas_pool_get_array(state, 'u', u, time_lev)
@@ -5790,6 +5796,8 @@ module atm_time_integration
       call mpas_pool_get_array(diag, 'pv_cell', pv_cell)
       call mpas_pool_get_array(diag, 'gradPVn', gradPVn)
       call mpas_pool_get_array(diag, 'gradPVt', gradPVt)
+      call mpas_pool_get_array(diag, 'uReconstructZonal', uReconstructZonal)
+      call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
 
       call mpas_pool_get_array(mesh, 'weightsOnEdge', weightsOnEdge)
       call mpas_pool_get_array(mesh, 'kiteAreasOnVertex', kiteAreasOnVertex)
@@ -5827,6 +5835,7 @@ module atm_time_integration
                gradPVn, gradPVt, divergence, cellsOnEdge, cellsOnVertex, verticesOnEdge, edgesOnCell, edgesOnEdge, &
                edgesOnVertex, kiteForCell, verticesOnCell, edgesOnVertex_sign, edgesOnCell_sign, nEdgesOnCell, nEdgesOnEdge, &
                cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
+               uReconstructZonal, uReconstructMeridional, config_ke_use_reconstructed, &
                rk_step)
 
    end subroutine atm_compute_solve_diagnostics
@@ -5839,6 +5848,7 @@ module atm_time_integration
             gradPVn, gradPVt, divergence, cellsOnEdge, cellsOnVertex, verticesOnEdge, edgesOnCell, edgesOnEdge, &
             edgesOnVertex, kiteForCell, verticesOnCell, edgesOnVertex_sign, edgesOnCell_sign, nEdgesOnCell, nEdgesOnEdge, &
             cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
+            uReconstructZonal, uReconstructMeridional, config_ke_use_reconstructed, &
             rk_step)
 
       use mpas_atm_dimensions
@@ -5872,6 +5882,7 @@ module atm_time_integration
       real (kind=RKIND), dimension(nVertLevels,nEdges+1) :: gradPVn
       real (kind=RKIND), dimension(nVertLevels,nEdges+1) :: gradPVt
       real (kind=RKIND), dimension(nVertLevels,nCells+1) :: divergence
+      real (kind=RKIND), dimension(nVertLevels,nCells+1) :: uReconstructZonal, uReconstructMeridional
       integer, dimension(2,nEdges+1) :: cellsOnEdge
       integer, dimension(3,nVertices+1) :: cellsOnVertex
       integer, dimension(2,nEdges+1) :: verticesOnEdge
@@ -5886,6 +5897,7 @@ module atm_time_integration
       integer, dimension(nEdges+1) :: nEdgesOnEdge
 
       integer, intent(in) :: cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd
+      logical, intent(in) :: config_ke_use_reconstructed
 
       integer, intent(in), optional :: rk_step
 
@@ -6000,40 +6012,48 @@ module atm_time_integration
 
 !$OMP BARRIER
 
-      !
-      ! Compute kinetic energy in each cell (Ringler et al JCP 2009)
-      !
-      ! Replace 2.0 with 2 in exponentiation to avoid outside chance that
-      ! compiler will actually allow "float raised to float" operation
-      MPAS_ACC_TIMER_START('atm_compute_solve_diagnostics [ACC_data_xfer]')
-      !$acc enter data create(ke)
-      MPAS_ACC_TIMER_STOP('atm_compute_solve_diagnostics [ACC_data_xfer]')
-      !$acc parallel default(present)
-      !$acc loop gang
-      do iCell=cellStart,cellEnd
-         !$acc loop vector
-         do k=1,nVertLevels
-            ke(k,iCell) = 0.0_RKIND
-         end do
-         !$acc loop seq
-         do i=1,nEdgesOnCell(iCell)
-            iEdge = edgesOnCell(i,iCell)
+      if (.not.config_ke_use_reconstructed) then
+         !
+         ! Compute kinetic energy in each cell (Ringler et al JCP 2009)
+         !
+         ! Replace 2.0 with 2 in exponentiation to avoid outside chance that
+         ! compiler will actually allow "float raised to float" operation
+         MPAS_ACC_TIMER_START('atm_compute_solve_diagnostics [ACC_data_xfer]')
+         !$acc enter data create(ke)
+         MPAS_ACC_TIMER_STOP('atm_compute_solve_diagnostics [ACC_data_xfer]')
+         !$acc parallel default(present)
+         !$acc loop gang
+         do iCell=cellStart,cellEnd
             !$acc loop vector
             do k=1,nVertLevels
-!               ke(k,iCell) = ke(k,iCell) + 0.25 * dcEdge(iEdge) * dvEdge(iEdge) * u(k,iEdge)**2
-               ke(k,iCell) = ke(k,iCell) + 0.25 * ke_edge(k,iEdge)
+               ke(k,iCell) = 0.0_RKIND
+            end do
+            !$acc loop seq
+            do i=1,nEdgesOnCell(iCell)
+               iEdge = edgesOnCell(i,iCell)
+               !$acc loop vector
+               do k=1,nVertLevels
+!                  ke(k,iCell) = ke(k,iCell) + 0.25 * dcEdge(iEdge) * dvEdge(iEdge) * u(k,iEdge)**2
+                  ke(k,iCell) = ke(k,iCell) + 0.25 * ke_edge(k,iEdge)
+               end do
+            end do
+!DIR$    IVDEP
+            !$acc loop vector
+            do k=1,nVertLevels
+               ke(k,iCell) = ke(k,iCell) * invAreaCell(iCell)
             end do
          end do
-!DIR$ IVDEP
-         !$acc loop vector
-         do k=1,nVertLevels
-            ke(k,iCell) = ke(k,iCell) * invAreaCell(iCell)
+         !$acc end parallel
+      else !config_ke_use_reconstructed == .true.
+         do iCell=cellStart,cellEnd
+            do k=1,nVertLevels
+               ke(k,iCell) = 0.5* (uReconstructZonal(k,iCell)**2 + uReconstructMeridional(k,iCell)**2)
+            end do
          end do
-      end do
-      !$acc end parallel
+      endif
 
 
-      if (hollingsworth) then
+      if (hollingsworth .and. .not.config_ke_use_reconstructed) then
          MPAS_ACC_TIMER_START('atm_compute_solve_diagnostics [ACC_data_xfer]')
          !$acc enter data create(ke_vertex)
          MPAS_ACC_TIMER_STOP('atm_compute_solve_diagnostics [ACC_data_xfer]')
