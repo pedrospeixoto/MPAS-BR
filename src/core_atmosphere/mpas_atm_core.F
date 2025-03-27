@@ -495,6 +495,29 @@ module atm_core
       call mpas_pool_get_dimension(block % dimensions, 'edgeSolveThreadStart', edgeSolveThreadStart)
       call mpas_pool_get_dimension(block % dimensions, 'edgeSolveThreadEnd', edgeSolveThreadEnd)
 
+      ! If config_ke_use_reconstructed = T we need to compute the reconstructed velocity before the first
+      ! call to solve_diagnostics
+      call mpas_pool_get_config(block % configs, 'config_custom_reconstruct', config_custom_reconstruct)
+      call mpas_rbf_interp_initialize(mesh)
+      if (.not. config_custom_reconstruct) call mpas_init_reconstruct(mesh)
+
+      call mpas_pool_get_config(block % configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
+
+      call mpas_pool_get_array(state, 'u', u, 1)
+      call mpas_pool_get_array(diag, 'uReconstructX', uReconstructX)
+      call mpas_pool_get_array(diag, 'uReconstructY', uReconstructY)
+      call mpas_pool_get_array(diag, 'uReconstructZ', uReconstructZ)
+      call mpas_pool_get_array(diag, 'uReconstructZonal', uReconstructZonal)
+      call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
+      call mpas_reconstruct(mesh, u,                                 &
+                            uReconstructX,                           &
+                            uReconstructY,                           &
+                            uReconstructZ,                           &
+                            uReconstructZonal,                       &
+                            uReconstructMeridional,                  &
+                            includeHalos=config_ke_use_reconstructed &
+                           )
+
 !$OMP PARALLEL DO
       do thread=1,nThreads
          if (.not. config_do_restart .or. (config_do_restart .and. config_do_DAcycling)) then
@@ -517,27 +540,6 @@ module atm_core
       deallocate(ke_vertex)
       deallocate(ke_edge)
 
-      call mpas_pool_get_config(block % configs, 'config_custom_reconstruct', config_custom_reconstruct)
-      call mpas_rbf_interp_initialize(mesh)
-      if (.not. config_custom_reconstruct) call mpas_init_reconstruct(mesh)
-
-      call mpas_pool_get_config(block % configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
-
-      call mpas_pool_get_array(state, 'u', u, 1)
-      call mpas_pool_get_array(diag, 'uReconstructX', uReconstructX)
-      call mpas_pool_get_array(diag, 'uReconstructY', uReconstructY)
-      call mpas_pool_get_array(diag, 'uReconstructZ', uReconstructZ)
-      call mpas_pool_get_array(diag, 'uReconstructZonal', uReconstructZonal)
-      call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
-      call mpas_reconstruct(mesh, u,                                 &
-                            uReconstructX,                           &
-                            uReconstructY,                           &
-                            uReconstructZ,                           &
-                            uReconstructZonal,                       &
-                            uReconstructMeridional,                  &
-                            includeHalos=config_ke_use_reconstructed &
-                           )
-   
 #ifdef DO_PHYSICS
       !proceed with initialization of physics parameterization if moist_physics is set to true:
       call mpas_pool_get_subpool(block % structs, 'sfc_input', sfc_input)

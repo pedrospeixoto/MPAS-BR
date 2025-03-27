@@ -1298,6 +1298,25 @@ module atm_time_integration
             allocate(ke_edge(nVertLevels,nEdges+1))
             ke_edge(:,nEdges+1) = 0.0_RKIND
    
+            !
+            ! reconstruct full velocity vectors at cell centers:
+            ! if config_ke_use_reconstructed = T this must be done before call to solve_diagnostics
+            call mpas_pool_get_array(state, 'u', u, 2)
+            call mpas_pool_get_array(diag, 'uReconstructX', uReconstructX)
+            call mpas_pool_get_array(diag, 'uReconstructY', uReconstructY)
+            call mpas_pool_get_array(diag, 'uReconstructZ', uReconstructZ)
+            call mpas_pool_get_array(diag, 'uReconstructZonal', uReconstructZonal)
+            call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
+
+            call mpas_reconstruct(mesh, u,                                 &
+                                  uReconstructX,                           &
+                                  uReconstructY,                           &
+                                  uReconstructZ,                           &
+                                  uReconstructZonal,                       &
+                                  uReconstructMeridional,                  &
+                                  includeHalos=config_ke_use_reconstructed &
+                                 )
+
 !$OMP PARALLEL DO
             do thread=1,nThreads
                call atm_compute_solve_diagnostics(dt, state, 2, diag, mesh, block % configs, &
@@ -1444,26 +1463,6 @@ module atm_time_integration
          end do RK3_SPLIT_TRANSPORT
 
       end if
-
-      !
-      ! reconstruct full velocity vectors at cell centers:
-      !
-      call mpas_pool_get_array(state, 'u', u, 2)
-      call mpas_pool_get_array(diag, 'uReconstructX', uReconstructX)
-      call mpas_pool_get_array(diag, 'uReconstructY', uReconstructY)
-      call mpas_pool_get_array(diag, 'uReconstructZ', uReconstructZ)
-      call mpas_pool_get_array(diag, 'uReconstructZonal', uReconstructZonal)
-      call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
-
-      call mpas_reconstruct(mesh, u,                                 &
-                            uReconstructX,                           &
-                            uReconstructY,                           &
-                            uReconstructZ,                           &
-                            uReconstructZonal,                       &
-                            uReconstructMeridional,                  &
-                            includeHalos=config_ke_use_reconstructed &
-                           )
-
 
       !
       ! call to parameterizations of cloud microphysics. calculation of the tendency of water vapor to horizontal and
