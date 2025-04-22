@@ -121,6 +121,11 @@
                      description="Whether to use the cell reconstructed velocity field to compute the cell kinetic energy"
                      possible_values=".true. or .false."/>
 
+                <nml_option name="config_ke_use_tangent" type="logical" default_value="false"
+                     units="-"
+                     description="Whether to use the edge tangential velocity field in the reconstruction of cell kinetic energy"
+                     possible_values=".true. or .false."/>
+
         </nml_record>
 
         <nml_record name="dimensions" in_defaults="true">
@@ -379,6 +384,7 @@
                 <package name="mp_thompson_aers_in" description="initialization of GOCART-based Thompson water- and ice-friendly aerosols"/>
                 <package name="noahmp" description="Whether to process, read, and write static fields only required by Noah-MP"/>
                 <package name="custom_reconstruct" description="Active when custom coeffs_reconstruct will be used"/>
+                <package name="ke_use_tangent" description="Active when coeffs_scalar_reconstruct is need te reconstruct cell kinetic energy including the tangential component of the velocity at the edges"/>
         </packages>
 
 
@@ -472,6 +478,7 @@
                         <var name="cell_gradient_coef_x" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="cell_gradient_coef_y" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="coeffs_reconstruct" packages="gwd_stage_in;vertical_stage_in;met_stage_in;custom_reconstruct"/>
+                        <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
                         <var name="cf1" packages="met_stage_in"/>
                         <var name="cf2" packages="met_stage_in"/>
                         <var name="cf3" packages="met_stage_in"/>
@@ -577,6 +584,7 @@
                         <var name="cell_gradient_coef_x"/>
                         <var name="cell_gradient_coef_y"/>
                         <var name="coeffs_reconstruct"/>
+                        <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
                         <var name="cf1" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf2" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf3" packages="vertical_stage_out;met_stage_out"/>
@@ -1009,6 +1017,10 @@
                 <!-- arrays required for reconstruction of velocity field -->
                 <var name="coeffs_reconstruct" type="real" dimensions="R3 maxEdges nCells" units="unitless"
                      description="Coefficients to reconstruct velocity vectors at cell centers"/>
+
+                <var name="coeffs_scalar_reconstruct" type="real" dimensions="maxEdges nCells" units="unitless"
+                    description="Coefficients to reconstruct edge scalar field at cell centers"
+                    package="ke_use_tangent"/>
 
                 <var name="bdyMaskCell" type="integer" dimensions="nCells" default_value="0" units="-"
                      description="Indicator of whether a cell is an interior cell, a relaxation-zone cell, or a specified-zone cell"/>

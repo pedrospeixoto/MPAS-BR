@@ -126,6 +126,7 @@ module atm_core_interface
       logical, pointer :: no_invariant_streamActive
       character(len=StrKIND) :: attvalue
       integer :: local_ierr
+      logical, pointer :: config_ke_use_tangent, ke_use_tangent, config_ke_use_reconstructed
 
       ierr = 0
 
@@ -207,6 +208,24 @@ module atm_core_interface
          call mpas_log_write('Package setup failed for atmphys in core_atmosphere', messageType=MPAS_LOG_ERR)
       end if
 #endif
+
+      nullify(config_ke_use_tangent)
+      call mpas_pool_get_config(configs, 'config_ke_use_tangent', config_ke_use_tangent)
+
+      nullify(config_ke_use_reconstructed)
+      call mpas_pool_get_config(configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
+
+      if (config_ke_use_reconstructed .and. config_ke_use_tangent) then
+         ierr = ierr + 1
+         call mpas_log_write("Package setup failed: 'config_ke_use_tangent' and 'config_ke_use_reconstructed' cannot be both set to '.true.'", &
+             messageType=MPAS_LOG_ERR)
+      endif
+
+      nullify(ke_use_tangent)
+      call mpas_pool_get_package(packages, 'ke_use_tangentActive', ke_use_tangent)
+
+      if (config_ke_use_tangent) ke_use_tangent = .true.
+
 
    end function atm_setup_packages
 
