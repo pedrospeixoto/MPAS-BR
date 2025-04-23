@@ -6014,6 +6014,23 @@ module atm_time_integration
 
 
 !$OMP BARRIER
+      !
+      ! Compute v (tangential) velocities following Thuburn et al JCP 2009
+      ! The tangential velocity is only used to compute the Smagorinsky coefficient
+
+      reconstruct_v = .true.
+      if(present(rk_step)) then
+        if(rk_step /= 3) reconstruct_v = .false.
+      end if
+
+      MPAS_ACC_TIMER_START('atm_compute_solve_diagnostics [ACC_data_xfer]')
+      if (reconstruct_v) then
+         !$acc enter data create(v)
+      else
+         !$acc enter data copyin(v)
+      end if
+      MPAS_ACC_TIMER_STOP('atm_compute_solve_diagnostics [ACC_data_xfer]')
+
       if (reconstruct_v.or.config_ke_use_tangent) then
         !$acc parallel default(present)
         !$acc loop gang
@@ -6162,23 +6179,6 @@ module atm_time_integration
          !$acc exit data delete(ke_vertex)
          MPAS_ACC_TIMER_STOP('atm_compute_solve_diagnostics [ACC_data_xfer]')
       end if
-
-      !
-      ! Compute v (tangential) velocities following Thuburn et al JCP 2009
-      ! The tangential velocity is only used to compute the Smagorinsky coefficient
-
-      reconstruct_v = .true.
-      if(present(rk_step)) then
-        if(rk_step /= 3) reconstruct_v = .false.
-      end if
-
-      MPAS_ACC_TIMER_START('atm_compute_solve_diagnostics [ACC_data_xfer]')
-      if (reconstruct_v) then
-         !$acc enter data create(v)
-      else
-         !$acc enter data copyin(v)
-      end if
-      MPAS_ACC_TIMER_STOP('atm_compute_solve_diagnostics [ACC_data_xfer]')
 
       !
       ! Compute height at vertices, pv at vertices, and average pv to edge locations
