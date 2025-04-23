@@ -6071,14 +6071,14 @@ module atm_time_integration
       elseif (config_ke_use_reconstructed) then
          do iCell=cellStart,cellEnd
             do k=1,nVertLevels
-               ke(k,iCell) = 0.5* (uReconstructZonal(k,iCell)**2 + uReconstructMeridional(k,iCell)**2)
+               ke(k,iCell) = 0.5_RKIND* (uReconstructZonal(k,iCell)**2 + uReconstructMeridional(k,iCell)**2)
             end do
          end do
       else !config_ke_use_tanget == .true.
 
          do iEdge=edgeStart,edgeEnd
             do k=1,nVertLevels
-               ke_edge(k,iEdge) = u(k,iEdge)**2 + v(k,iEdge)**2
+               ke_edge(k,iEdge) = 0.5_RKIND*(u(k,iEdge)**2 + v(k,iEdge)**2)
             end do
          end do
 
