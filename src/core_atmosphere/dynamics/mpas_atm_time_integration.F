@@ -6106,7 +6106,7 @@ module atm_time_integration
             do i=1,nEdgesOnCell(iCell)
                iEdge = edgesOnCell(i,iCell)
                do k=1,nVertLevels
-                  ke(k,iCell) = ke(k,iCell) + coeffs_scalar_reconstruct(iEdge,iCell) * ke_edge(k,iEdge)
+                  ke(k,iCell) = ke(k,iCell) + coeffs_scalar_reconstruct(i,iCell) * ke_edge(k,iEdge)
                end do
             end do
          end do
