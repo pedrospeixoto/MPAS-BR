@@ -243,12 +243,20 @@
 
     case("obs")
 
+       call mpas_log_write('!!!!!!case obs!!!!!!!')
+
+
        DO i=its,ite
        DO k=kts,kte
 
-       ! GTM: initially do nudging only for variable in (k,i)=(1,331)
-       if (i==331 .and. k==1) then
+       !call mpas_log_write('i= $i', intArgs=(/i/))
+       !call mpas_log_write('k= $i', intArgs=(/k/))
 
+       ! GTM: initially do nudging only for variable in (k,i)=(1,331)
+       if (i==332 .and. k==1) then
+         call mpas_log_write('i= $i', intArgs=(/i/))
+         call mpas_log_write('k= $i', intArgs=(/k/))
+               
           theta_p = theta_m(k,i) / (1._RKIND + rvrd * qv(k,i))
 
           if (fdda_t .and. k.gt.fdda_t_min_layer .and. (fdda_t_in_pbl .or. k.gt.kpbl(i))) then
@@ -274,6 +282,12 @@
              rufddaten(k,i) = 0.
              rvfddaten(k,i) = 0.
           endif
+
+          call mpas_log_write('fdda_uv_coef $r ', realArgs=(/fdda_uv_coef/))          
+          call mpas_log_write('u_target $r', realArgs=(/u_target/))
+          call mpas_log_write('v_target $r', realArgs=(/v_target/))
+          call mpas_log_write('rufddaten $r', realArgs=(/rufddaten(k,i)/))
+          call mpas_log_write('rvfddaten $r', realArgs=(/rvfddaten(k,i)/))
 
        else
           rthfddaten(k,i) = 0.
