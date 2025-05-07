@@ -253,7 +253,7 @@
        !call mpas_log_write('k= $i', intArgs=(/k/))
 
        ! GTM: initially do nudging only for variable in (k,i)=(1,331)
-       if (i==332 .and. k==1) then
+       if (i==332 .and. k==2) then
          call mpas_log_write('i= $i', intArgs=(/i/))
          call mpas_log_write('k= $i', intArgs=(/k/))
                
