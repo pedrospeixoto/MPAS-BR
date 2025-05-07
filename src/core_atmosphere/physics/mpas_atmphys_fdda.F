@@ -277,11 +277,11 @@
              rvfddaten(k,i) = 0.
           endif
 
-          call mpas_log_write('fdda_uv_coef $r ', realArgs=(/fdda_uv_coef/))          
-          call mpas_log_write('u_target $r', realArgs=(/u_target/))
-          call mpas_log_write('v_target $r', realArgs=(/v_target/))
-          call mpas_log_write('rufddaten $r', realArgs=(/rufddaten(k,i)/))
-          call mpas_log_write('rvfddaten $r', realArgs=(/rvfddaten(k,i)/))
+          !call mpas_log_write('fdda_uv_coef $r ', realArgs=(/fdda_uv_coef/))          
+          !call mpas_log_write('u_target $r', realArgs=(/u_target/))
+          !call mpas_log_write('v_target $r', realArgs=(/v_target/))
+          !call mpas_log_write('rufddaten $r', realArgs=(/rufddaten(k,i)/))
+          !call mpas_log_write('rvfddaten $r', realArgs=(/rvfddaten(k,i)/))
 
        ENDDO
        ENDDO
