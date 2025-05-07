@@ -839,6 +839,7 @@
 			<var name="qv_fdda_new"/>
 			<var name="u_fdda_new"/>
 			<var name="v_fdda_new"/>
+			<var name="obs_weights"/>
 			<var name="pin"/>
 			<var name="ozmixm"/>
 			<var name="isltyp"/>
@@ -897,6 +898,7 @@
 			<var name="th_fdda_new"/>
 			<var name="u_fdda_new"/>
 			<var name="v_fdda_new"/>
+			<var name="obs_weights"/>
         </stream>
 
 		<stream name="output" 
@@ -1606,7 +1608,8 @@
                 <var name="th_fdda_old"  type="real"  dimensions="nVertLevels nCells Time"/>
                 <var name="u_fdda_old"   type="real"  dimensions="nVertLevels nCells Time"/>
                 <var name="v_fdda_old"   type="real"  dimensions="nVertLevels nCells Time"/>
-        </var_struct>
+	        <var name="obs_weights"  type="real"  dimensions="nCells"/>
+	</var_struct>
 
         <var_struct name="diag" time_levs="1">
 
