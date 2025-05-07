@@ -250,36 +250,28 @@
 
        DO i=its,ite
        DO k=kts,kte
-
-       !call mpas_log_write('i= $i', intArgs=(/i/))
-       !call mpas_log_write('k= $i', intArgs=(/k/))
-
-       ! GTM: initially do nudging only for variable in (k,i)=(1,331)
-       if (i==332 .and. k==2) then
-         call mpas_log_write('i= $i', intArgs=(/i/))
-         call mpas_log_write('k= $i', intArgs=(/k/))
-               
+            
           theta_p = theta_m(k,i) / (1._RKIND + rvrd * qv(k,i))
 
           if (fdda_t .and. k.gt.fdda_t_min_layer .and. (fdda_t_in_pbl .or. k.gt.kpbl(i))) then
              t_target = (1.0-tfrac)*th_fdda_old(k,i)+tfrac*th_fdda_new(k,i)
-             rthfddaten(k,i) = fdda_t_coef * ( t_target - theta_p )
+             rthfddaten(k,i) = fdda_t_coef * obs_weights(i) * ( t_target - theta_p )
           else
              rthfddaten(k,i) = 0.
           endif
 
           if (fdda_q .and. k.gt.fdda_q_min_layer .and. (fdda_q_in_pbl .or. k.gt.kpbl(i))) then
              q_target = (1.0-tfrac)*qv_fdda_old(k,i)+tfrac*qv_fdda_new(k,i)
-             rqvfddaten(k,i) = fdda_q_coef * ( q_target - qv(k,i) )
+             rqvfddaten(k,i) = fdda_q_coef * obs_weights(i) * ( q_target - qv(k,i) )
           else
              rqvfddaten(k,i) = 0.
           endif
 
           if (fdda_uv .and. k.gt.fdda_uv_min_layer .and. (fdda_uv_in_pbl .or. k.gt.kpbl(i))) then
              u_target = (1.0-tfrac)*u_fdda_old(k,i)+tfrac*u_fdda_new(k,i)
-             rufddaten(k,i) = fdda_uv_coef * ( u_target - u(k,i) )
+             rufddaten(k,i) = fdda_uv_coef * obs_weights(i) * ( u_target - u(k,i) )
              v_target = (1.0-tfrac)*v_fdda_old(k,i)+tfrac*v_fdda_new(k,i)
-             rvfddaten(k,i) = fdda_uv_coef * ( v_target - v(k,i) )
+             rvfddaten(k,i) = fdda_uv_coef * obs_weights(i) * ( v_target - v(k,i) )
           else
              rufddaten(k,i) = 0.
              rvfddaten(k,i) = 0.
@@ -290,14 +282,6 @@
           call mpas_log_write('v_target $r', realArgs=(/v_target/))
           call mpas_log_write('rufddaten $r', realArgs=(/rufddaten(k,i)/))
           call mpas_log_write('rvfddaten $r', realArgs=(/rvfddaten(k,i)/))
-
-       else
-          rthfddaten(k,i) = 0.
-          rqvfddaten(k,i) = 0.
-          rufddaten(k,i) = 0.
-          rvfddaten(k,i) = 0.
-
-       endif
 
        ENDDO
        ENDDO
