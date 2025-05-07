@@ -77,6 +77,7 @@
  real(kind=RKIND),dimension(:,:),pointer  :: rufddaten,rvfddaten 
  real(kind=RKIND),dimension(:,:),pointer  :: qv_fdda_old,th_fdda_old,u_fdda_old,v_fdda_old
  real(kind=RKIND),dimension(:,:),pointer  :: qv_fdda_new,th_fdda_new,u_fdda_new,v_fdda_new
+ real(kind=RKIND),dimension(:),pointer    :: obs_weights
  real(kind=RKIND),dimension(:,:),pointer  :: u,v
  real(kind=RKIND),dimension(:,:),pointer  :: qv
  real(kind=RKIND),dimension(:,:),pointer  :: theta_m
@@ -132,6 +133,7 @@
  call mpas_pool_get_array(fdda,'th_fdda_new',th_fdda_new)
  call mpas_pool_get_array(fdda,'u_fdda_new', u_fdda_new )
  call mpas_pool_get_array(fdda,'v_fdda_new', v_fdda_new )
+ call mpas_pool_get_array(fdda,'obs_weights', obs_weights )
  call mpas_pool_get_array(tend_physics,'rthfddaten',rthfddaten)
  call mpas_pool_get_array(tend_physics,'rqvfddaten',rqvfddaten)
  call mpas_pool_get_array(tend_physics,'rufddaten' ,rufddaten )
