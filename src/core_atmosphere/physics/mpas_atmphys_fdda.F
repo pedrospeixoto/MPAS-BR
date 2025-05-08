@@ -77,7 +77,7 @@
  real(kind=RKIND),dimension(:,:),pointer  :: rufddaten,rvfddaten 
  real(kind=RKIND),dimension(:,:),pointer  :: qv_fdda_old,th_fdda_old,u_fdda_old,v_fdda_old
  real(kind=RKIND),dimension(:,:),pointer  :: qv_fdda_new,th_fdda_new,u_fdda_new,v_fdda_new
- real(kind=RKIND),dimension(:),pointer    :: obs_weights
+ real(kind=RKIND),dimension(:,:),pointer  :: obs_weights
  real(kind=RKIND),dimension(:,:),pointer  :: u,v
  real(kind=RKIND),dimension(:,:),pointer  :: qv
  real(kind=RKIND),dimension(:,:),pointer  :: theta_m
@@ -287,7 +287,8 @@ realArgs=(/u_fdda_new(k,i)/))
                 call mpas_log_write('u(k,i): $r ', realArgs=(/u(k,i)/))
                 call mpas_log_write('v_target: $r ', realArgs=(/v_target/))
                 call mpas_log_write('v(k,i): $r ', realArgs=(/v(k,i)/))
-                call mpas_log_write('obs_weights(k,i): $r ', realArgs=(/obs_weights(i)/))
+                call mpas_log_write('obs_weights(k,i): $r ',
+realArgs=(/obs_weights(k,i)/))
                 call mpas_log_write('fdda_uv_coef: $r ', realArgs=(/fdda_uv_coef/))
              endif
 
