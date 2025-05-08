@@ -485,7 +485,7 @@
                         <var name="cell_gradient_coef_y" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="coeffs_reconstruct" packages="gwd_stage_in;vertical_stage_in;met_stage_in;custom_reconstruct"/>
                         <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
-                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontructed"/>
+                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_reconstructed"/>
                         <var name="cf1" packages="met_stage_in"/>
                         <var name="cf2" packages="met_stage_in"/>
                         <var name="cf3" packages="met_stage_in"/>
@@ -592,7 +592,7 @@
                         <var name="cell_gradient_coef_y"/>
                         <var name="coeffs_reconstruct"/>
                         <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
-                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontructed"/>
+                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_reconstructed"/>
                         <var name="cf1" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf2" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf3" packages="vertical_stage_out;met_stage_out"/>
@@ -1032,7 +1032,7 @@
 
                 <var name="vertex_coeffs_reconstruct" type="real" dimensions="R3 vertexDegree nVertices" units="unitless"
                     description="Coefficients to reconstruct velocity vectors at vertices"
-                    package="ke_use_vertex_recontruct"/>
+                    package="ke_use_vertex_reconstruct"/>
 
                 <var name="bdyMaskCell" type="integer" dimensions="nCells" default_value="0" units="-"
                      description="Indicator of whether a cell is an interior cell, a relaxation-zone cell, or a specified-zone cell"/>
