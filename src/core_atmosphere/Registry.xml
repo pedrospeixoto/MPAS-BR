@@ -1501,7 +1501,8 @@
                      description="Coefficients to reconstruct velocity vectors at cell centers"/>
 
                 <var name="coeffs_scalar_reconstruct" type="real" dimensions="maxEdges nCells" units="unitless"
-                    description="Coefficients to reconstruct edge scalar field at cell centers"/>
+                    description="Coefficients to reconstruct edge scalar field at cell centers"
+                    packages="ke_use_tangent"/>
 
                 <var name="east" type="real" dimensions="R3 nCells" units="unitless"
                      description="Cartesian components of the local unit vector pointing east"/>

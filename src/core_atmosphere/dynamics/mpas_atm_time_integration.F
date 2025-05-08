@@ -5801,7 +5801,6 @@ module atm_time_integration
       call mpas_pool_get_array(diag, 'uReconstructMeridional', uReconstructMeridional)
 
       call mpas_pool_get_array(mesh, 'weightsOnEdge', weightsOnEdge)
-      call mpas_pool_get_array(mesh, 'coeffs_scalar_reconstruct', coeffs_scalar_reconstruct)
       call mpas_pool_get_array(mesh, 'kiteAreasOnVertex', kiteAreasOnVertex)
       call mpas_pool_get_array(mesh, 'cellsOnEdge', cellsOnEdge)
       call mpas_pool_get_array(mesh, 'cellsOnVertex', cellsOnVertex)
@@ -5837,9 +5836,15 @@ module atm_time_integration
                gradPVn, gradPVt, divergence, cellsOnEdge, cellsOnVertex, verticesOnEdge, edgesOnCell, edgesOnEdge, &
                edgesOnVertex, kiteForCell, verticesOnCell, edgesOnVertex_sign, edgesOnCell_sign, nEdgesOnCell, nEdgesOnEdge, &
                cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
-               coeffs_scalar_reconstruct, uReconstructZonal, uReconstructMeridional, config_ke_use_reconstructed, config_ke_use_tangent, &
+               uReconstructZonal, uReconstructMeridional, config_ke_use_reconstructed, config_ke_use_tangent, &
                rk_step)
 
+      if (config_ke_use_tangent) then
+          call mpas_pool_get_array(mesh, 'coeffs_scalar_reconstruct', coeffs_scalar_reconstruct)
+
+          call atm_compute_solve_ke_use_tangent_work(nCells, nEdges, u, v, ke, nEdgesOnCell, edgesOnCell, &
+          cellStart, cellEnd, edgeStart, edgeEnd, coeffs_scalar_reconstruct)
+      endif
    end subroutine atm_compute_solve_diagnostics
 
 
@@ -5850,7 +5855,7 @@ module atm_time_integration
             gradPVn, gradPVt, divergence, cellsOnEdge, cellsOnVertex, verticesOnEdge, edgesOnCell, edgesOnEdge, &
             edgesOnVertex, kiteForCell, verticesOnCell, edgesOnVertex_sign, edgesOnCell_sign, nEdgesOnCell, nEdgesOnEdge, &
             cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
-            coeffs_scalar_reconstruct, uReconstructZonal, uReconstructMeridional, config_ke_use_reconstructed, config_ke_use_tangent, &
+            uReconstructZonal, uReconstructMeridional, config_ke_use_reconstructed, config_ke_use_tangent, &
             rk_step)
 
       use mpas_atm_dimensions
@@ -5897,7 +5902,6 @@ module atm_time_integration
       real (kind=RKIND), dimension(maxEdges,nCells+1) :: edgesOnCell_sign
       integer, dimension(nCells+1) :: nEdgesOnCell
       integer, dimension(nEdges+1) :: nEdgesOnEdge
-      real (kind=RKIND), dimension(maxEdges,nCells+1), intent(in) :: coeffs_scalar_reconstruct
 
       integer, intent(in) :: cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd
       logical, intent(in) :: config_ke_use_reconstructed, config_ke_use_tangent
@@ -6091,26 +6095,6 @@ module atm_time_integration
                ke(k,iCell) = 0.5_RKIND* (uReconstructZonal(k,iCell)**2 + uReconstructMeridional(k,iCell)**2)
             end do
          end do
-      else !config_ke_use_tanget == .true.
-
-         do iEdge=edgeStart,edgeEnd
-            do k=1,nVertLevels
-               ke_edge(k,iEdge) = 0.5_RKIND*(u(k,iEdge)**2 + v(k,iEdge)**2)
-            end do
-         end do
-
-         do iCell=cellStart,cellEnd
-            do k=1,nVertLevels
-               ke(k,iCell) = 0.0_RKIND
-            end do
-            do i=1,nEdgesOnCell(iCell)
-               iEdge = edgesOnCell(i,iCell)
-               do k=1,nVertLevels
-                  ke(k,iCell) = ke(k,iCell) + coeffs_scalar_reconstruct(i,iCell) * ke_edge(k,iEdge)
-               end do
-            end do
-         end do
-
       endif
 
 
@@ -6318,6 +6302,53 @@ module atm_time_integration
       MPAS_ACC_TIMER_STOP('atm_compute_solve_diagnostics [ACC_data_xfer]')
 
    end subroutine atm_compute_solve_diagnostics_work
+
+
+   subroutine atm_compute_solve_ke_use_tangent_work(nCells, nEdges, u, v, ke, nEdgesOnCell,&
+           edgesOnCell, cellStart, cellEnd, edgeStart, edgeEnd, coeffs_scalar_reconstruct)
+
+      use mpas_atm_dimensions
+
+      implicit none
+
+      !
+      ! Dummy arguments
+      !
+      integer, intent(in) :: nCells, nEdges
+      real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(in) :: u
+      real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(in) :: v
+      real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(out) :: ke
+      integer, dimension(nCells+1), intent(in) :: nEdgesOnCell
+      integer, dimension(maxEdges,nCells+1), intent(in) :: edgesOnCell
+      real (kind=RKIND), dimension(maxEdges,nCells+1), intent(in) :: coeffs_scalar_reconstruct
+
+      integer, intent(in) :: cellStart, cellEnd, edgeStart, edgeEnd
+
+      !
+      ! Local variables
+      !
+      integer :: iEdge, iCell, iVertex, k, i
+
+      do iEdge=edgeStart,edgeEnd
+         do k=1,nVertLevels
+            ke_edge(k,iEdge) = 0.5_RKIND*(u(k,iEdge)**2 + v(k,iEdge)**2)
+         end do
+      end do
+
+      do iCell=cellStart,cellEnd
+         do k=1,nVertLevels
+            ke(k,iCell) = 0.0_RKIND
+         end do
+         do i=1,nEdgesOnCell(iCell)
+            iEdge = edgesOnCell(i,iCell)
+            do k=1,nVertLevels
+               ke(k,iCell) = ke(k,iCell) + coeffs_scalar_reconstruct(i,iCell) * ke_edge(k,iEdge)
+            end do
+         end do
+      end do
+
+   end subroutine atm_compute_solve_ke_use_tangent_work
+
 
 
    subroutine atm_init_coupled_diagnostics(state, time_lev, diag, mesh, configs, &
