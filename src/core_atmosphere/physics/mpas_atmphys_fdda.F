@@ -279,16 +279,13 @@
                 call mpas_log_write('i: $i ', intArgs=(/i/))
                 call mpas_log_write('k: $i ', intArgs=(/k/))
                 call mpas_log_write('u_target: $r ', realArgs=(/u_target/))
-                call mpas_log_write('u_fdda_old(k,i): $r',
-realArgs=(/u_fdda_old(k,i)/))
-                call mpas_log_write('u_fdda_new(k,i): $r',
-realArgs=(/u_fdda_new(k,i)/))
+                call mpas_log_write('u_fdda_old(k,i): $r', realArgs=(/u_fdda_old(k,i)/))
+                call mpas_log_write('u_fdda_new(k,i): $r', realArgs=(/u_fdda_new(k,i)/))
                 call mpas_log_write('tfrac: $r', realArgs=(/tfrac/))
                 call mpas_log_write('u(k,i): $r ', realArgs=(/u(k,i)/))
                 call mpas_log_write('v_target: $r ', realArgs=(/v_target/))
                 call mpas_log_write('v(k,i): $r ', realArgs=(/v(k,i)/))
-                call mpas_log_write('obs_weights(k,i): $r ',
-realArgs=(/obs_weights(k,i)/))
+                call mpas_log_write('obs_weights(k,i): $r ', realArgs=(/obs_weights(k,i)/))
                 call mpas_log_write('fdda_uv_coef: $r ', realArgs=(/fdda_uv_coef/))
              endif
 
