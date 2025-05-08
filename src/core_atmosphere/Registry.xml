@@ -262,6 +262,11 @@
                      description="Whether to use the cell reconstructed velocity field to compute the cell kinetic energy"
                      possible_values=".true. or .false."/>
 
+                <nml_option name="config_ke_use_vertex_reconstructed" type="logical" default_value="false"
+                     units="-"
+                     description="Whether to use the vertex reconstructed velocity together with cell field to compute the cell kinetic energy"
+                     possible_values=".true. or .false."/>
+
                 <nml_option name="config_ke_use_tangent" type="logical" default_value="false"
                      units="-"
                      description="Whether to use the edge tangential velocity field in the reconstruction of cell kinetic energy"
@@ -428,6 +433,7 @@
                 <package name="no_invariant_stream" description="No separate invariant I/O stream is active"/>
 
                 <package name="ke_use_tangent" description="Active when coeffs_scalar_reconstruct is need te reconstruct cell kinetic energy including the tangential component of the velocity at the edges"/>
+                <package name="ke_use_vertex_reconstruct" description="Active when vertex_coeffs_reconstruct is need te reconstruct vertex kinetic energy"/>
         </packages>
 
 
@@ -506,6 +512,7 @@
 			<var name="defc_a"/>
 			<var name="defc_b"/>
 			<var name="coeffs_reconstruct"/>
+			<var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_reconstruct"/>
 			<var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
 #ifdef MPAS_CAM_DYCORE
 			<var name="cell_gradient_coef_x"/>
@@ -1499,6 +1506,10 @@
                 <!-- Arrays required for reconstruction of velocity field -->
                 <var name="coeffs_reconstruct" type="real" dimensions="R3 maxEdges nCells" units="unitless"
                      description="Coefficients to reconstruct velocity vectors at cell centers"/>
+
+                <var name="vertex_coeffs_reconstruct" type="real" dimensions="R3 vertexDegree nVertices" units="unitless"
+                    description="Coefficients to reconstruct velocity vectors at vertices"
+                    packages="ke_use_vertex_reconstruct"/>
 
                 <var name="coeffs_scalar_reconstruct" type="real" dimensions="maxEdges nCells" units="unitless"
                     description="Coefficients to reconstruct edge scalar field at cell centers"

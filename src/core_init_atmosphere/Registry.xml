@@ -121,6 +121,11 @@
                      description="Whether to use the cell reconstructed velocity field to compute the cell kinetic energy"
                      possible_values=".true. or .false."/>
 
+                <nml_option name="config_ke_use_vertex_reconstructed" type="logical" default_value="false"
+                     units="-"
+                     description="Whether to use the vertex reconstructed velocity field in conjunction with the cell reconstructed velocity to compute the cell kinetic energy"
+                     possible_values=".true. or .false."/>
+
                 <nml_option name="config_ke_use_tangent" type="logical" default_value="false"
                      units="-"
                      description="Whether to use the edge tangential velocity field in the reconstruction of cell kinetic energy"
@@ -385,6 +390,7 @@
                 <package name="noahmp" description="Whether to process, read, and write static fields only required by Noah-MP"/>
                 <package name="custom_reconstruct" description="Active when custom coeffs_reconstruct will be used"/>
                 <package name="ke_use_tangent" description="Active when coeffs_scalar_reconstruct is need te reconstruct cell kinetic energy including the tangential component of the velocity at the edges"/>
+                <package name="ke_use_vertex_recontruct" description="Active when vertex_coeffs_reconstruct is need te reconstruct vertex velocity vector and kinetic energy."/>
         </packages>
 
 
@@ -479,6 +485,7 @@
                         <var name="cell_gradient_coef_y" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="coeffs_reconstruct" packages="gwd_stage_in;vertical_stage_in;met_stage_in;custom_reconstruct"/>
                         <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
+                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontruct"/>
                         <var name="cf1" packages="met_stage_in"/>
                         <var name="cf2" packages="met_stage_in"/>
                         <var name="cf3" packages="met_stage_in"/>
@@ -585,6 +592,7 @@
                         <var name="cell_gradient_coef_y"/>
                         <var name="coeffs_reconstruct"/>
                         <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
+                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontruct"/>
                         <var name="cf1" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf2" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf3" packages="vertical_stage_out;met_stage_out"/>
@@ -1021,6 +1029,10 @@
                 <var name="coeffs_scalar_reconstruct" type="real" dimensions="maxEdges nCells" units="unitless"
                     description="Coefficients to reconstruct edge scalar field at cell centers"
                     package="ke_use_tangent"/>
+
+                <var name="vertex_coeffs_reconstruct" type="real" dimensions="R3 vertexDegree nVertices" units="unitless"
+                    description="Coefficients to reconstruct velocity vectors at vertices"
+                    package="ke_use_vertex_recontruct"/>
 
                 <var name="bdyMaskCell" type="integer" dimensions="nCells" default_value="0" units="-"
                      description="Indicator of whether a cell is an interior cell, a relaxation-zone cell, or a specified-zone cell"/>

@@ -127,6 +127,7 @@ module atm_core_interface
       character(len=StrKIND) :: attvalue
       integer :: local_ierr
       logical, pointer :: config_ke_use_tangent, ke_use_tangent, config_ke_use_reconstructed
+      logical, pointer :: config_ke_use_vertex_reconstructed, ke_use_vertex_reconstruct
 
       ierr = 0
 
@@ -225,6 +226,21 @@ module atm_core_interface
       call mpas_pool_get_package(packages, 'ke_use_tangentActive', ke_use_tangent)
 
       if (config_ke_use_tangent) ke_use_tangent = .true.
+
+      nullify(config_ke_use_vertex_reconstructed)
+      call mpas_pool_get_config(configs, 'config_ke_vertex_use_reconstructed', config_ke_use_vertex_reconstructed)
+
+      if (config_ke_use_vertex_reconstructed .and. .not.config_ke_use_reconstructed) then
+         ierr = ierr + 1
+         call mpas_log_write("Package setup failed: 'config_ke_use_vertex_reconstructed' can only be used when &
+         &'config_ke_use_reconstructed' is also set to '.true.'", &
+             messageType=MPAS_LOG_ERR)
+      endif
+
+      nullify(ke_use_vertex_reconstruct)
+      call mpas_pool_get_package(packages, 'ke_use_vertex_reconstructActive', ke_use_vertex_reconstruct)
+
+      if (config_ke_use_vertex_reconstructed) ke_use_vertex_reconstruct = .true.
 
 
    end function atm_setup_packages

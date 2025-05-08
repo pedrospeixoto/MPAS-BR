@@ -122,7 +122,7 @@ module init_atm_core_interface
       integer, pointer :: config_init_case
       logical, pointer :: noahmp, config_noahmp_static
       logical, pointer :: config_custom_reconstruct, custom_reconstruct
-      logical, pointer :: config_ke_use_tangent, ke_use_tangent
+      logical, pointer :: config_ke_use_tangent, ke_use_tangent, config_ke_use_vertex_reconstruct, ke_use_vertex_reconstruct
 
 
       ierr = 0
@@ -134,6 +134,7 @@ module init_atm_core_interface
       call mpas_pool_get_config(configs, 'config_met_interp', config_met_interp)
       call mpas_pool_get_config(configs, 'config_custom_reconstruct', config_custom_reconstruct)
       call mpas_pool_get_config(configs, 'config_ke_use_tangent', config_ke_use_tangent)
+      call mpas_pool_get_config(configs, 'config_ke_use_vertex_reconstruct', config_ke_use_vertex_reconstruct)
 
       nullify(initial_conds)
       call mpas_pool_get_package(packages, 'initial_condsActive', initial_conds)
@@ -171,6 +172,9 @@ module init_atm_core_interface
       nullify(ke_use_tangent)
       call mpas_pool_get_package(packages, 'ke_use_tangentActive', ke_use_tangent)
 
+      nullify(ke_use_vertex_reconstruct)
+      call mpas_pool_get_package(packages, 'ke_use_vertex_reconstructActive', ke_use_vertex_reconstruct)
+
       if (.not. associated(initial_conds) .or. &
           .not. associated(sfc_update) .or. &
           .not. associated(gwd_stage_in) .or. &
@@ -181,6 +185,7 @@ module init_atm_core_interface
           .not. associated(met_stage_out) .or. &
           .not. associated(mp_thompson_aers_in) .or. &
           .not. associated(custom_reconstruct) .or. &
+          .not. associated(ke_use_vertex_reconstruct) .or. &
           .not. associated(ke_use_tangent)) then
          call mpas_log_write('********************************************************************************', messageType=MPAS_LOG_ERR)
          call mpas_log_write('* Error while setting up packages for init_atmosphere core.',                      messageType=MPAS_LOG_ERR)
@@ -195,6 +200,10 @@ module init_atm_core_interface
 
       if (config_ke_use_tangent) then
          ke_use_tangent = .true.
+      endif
+
+      if (config_ke_use_vertex_reconstruct) then
+         ke_use_vertex_reconstruct = .true.
       endif
 
       if (config_init_case == 8) then

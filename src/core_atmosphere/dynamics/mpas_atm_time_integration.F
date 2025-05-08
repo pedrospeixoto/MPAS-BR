@@ -770,7 +770,7 @@ module atm_time_integration
       type (field2DReal), pointer :: tend_ru_physicsField, tend_rtheta_physicsField, tend_rho_physicsField
 #endif
 
-      logical, pointer :: config_ke_use_reconstructed, config_ke_use_tangent
+      logical, pointer :: config_ke_use_reconstructed, config_ke_use_tangent, config_ke_use_vertex_reconstructed
 
       real (kind=RKIND)  :: time_dyn_step
       logical, parameter :: debug = .false.
@@ -796,6 +796,7 @@ module atm_time_integration
 #endif
       call mpas_pool_get_config(block % configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
       call mpas_pool_get_config(block % configs, 'config_ke_use_tangent', config_ke_use_tangent)
+      call mpas_pool_get_config(block % configs, 'config_ke_use_vertex_reconstructed', config_ke_use_vertex_reconstructed)
 
       !
       ! Retrieve field structures
@@ -5777,12 +5778,13 @@ module atm_time_integration
       integer, dimension(:), pointer :: nEdgesOnCell, nEdgesOnEdge
 
       real (kind=RKIND), pointer :: config_apvm_upwinding
-      logical, pointer :: config_ke_use_reconstructed, config_ke_use_tangent
-
+      logical, pointer :: config_ke_use_reconstructed, config_ke_use_tangent, config_ke_use_vertex_reconstructed
+      real (kind=RKIND), dimension(:,:,:), pointer :: coeffs_vertex_reconstruct
 
       call mpas_pool_get_config(configs, 'config_apvm_upwinding', config_apvm_upwinding)
       call mpas_pool_get_config(configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
       call mpas_pool_get_config(configs, 'config_ke_use_tangent', config_ke_use_tangent)
+      call mpas_pool_get_config(configs, 'config_ke_use_vertex_reconstructed', config_ke_use_vertex_reconstructed)
 
       call mpas_pool_get_array(state, 'rho_zz', h, time_lev)
       call mpas_pool_get_array(state, 'u', u, time_lev)
@@ -5845,6 +5847,18 @@ module atm_time_integration
           call atm_compute_solve_ke_use_tangent_work(nCells, nEdges, u, v, ke, nEdgesOnCell, edgesOnCell, &
           cellStart, cellEnd, edgeStart, edgeEnd, coeffs_scalar_reconstruct)
       endif
+
+      if (config_ke_use_vertex_reconstructed) then
+          call mpas_pool_get_array(mesh, 'coeffs_vertex_reconstruct', coeffs_vertex_reconstruct)
+
+          call atm_compute_solve_ke_use_vertex_reconstruct_work(nCells, nEdges, nVertices, &
+              vertexDegree, invAreaCell, &
+              kiteAreasOnVertex, kiteForCell, u, ke, &
+              edgesOnVertex, verticesOnCell, nEdgesOnCell, edgesOnCell, &
+              cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
+              coeffs_vertex_reconstruct)
+      endif
+
    end subroutine atm_compute_solve_diagnostics
 
 
@@ -6349,6 +6363,99 @@ module atm_time_integration
 
    end subroutine atm_compute_solve_ke_use_tangent_work
 
+
+   subroutine atm_compute_solve_ke_use_vertex_reconstruct_work(nCells, nEdges, nVertices, &
+            vertexDegree, invAreaCell, &
+            kiteAreasOnVertex, kiteForCell, u, ke, &
+            edgesOnVertex, verticesOnCell, nEdgesOnCell, edgesOnCell, &
+            cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
+            coeffs_vertex_reconstruct)
+
+      use mpas_atm_dimensions
+
+      implicit none
+
+      !
+      ! Dummy arguments
+      !
+      integer, intent(in) :: nCells, nEdges, nVertices, vertexDegree
+      real (kind=RKIND), dimension(nCells+1), intent(in) :: invAreaCell
+      real (kind=RKIND), dimension(3,nVertices+1), intent(in) :: kiteAreasOnVertex
+      real (kind=RKIND), dimension(nVertLevels,nEdges+1), intent(in) :: u
+      real (kind=RKIND), dimension(nVertLevels,nCells+1), intent(inout) :: ke
+      integer, dimension(3,nVertices+1), intent(in) :: edgesOnVertex
+      integer, dimension(maxEdges,nCells+1), intent(in) :: verticesOnCell
+      integer, dimension(nCells+1), intent(in) :: nEdgesOnCell
+      integer, dimension(maxEdges, nCells+1), intent(in) :: edgesOnCell
+      integer, dimension(maxEdges,nCells+1), intent(in) :: kiteForCell
+      real (kind=RKIND), dimension(3,vertexDegree,nVertices+1), intent(in) :: coeffs_vertex_reconstruct
+
+      integer, intent(in) :: cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd
+
+      !
+      ! Local variables
+      !
+      integer :: iCell, iVertex, k, i, j
+      real (kind=RKIND) :: u1, u2, u3, ux_vert, uy_vert, uz_vert
+      real (kind=RKIND) :: fac_x1, fac_x2, fac_x3, &
+                           fac_y1, fac_y2, fac_y3, &
+                           fac_z1, fac_z2, fac_z3
+      integer :: e1, e2, e3
+
+      real (kind=RKIND) :: ke_fact, efac, r
+
+      do iVertex=vertexStart,vertexEnd
+
+         e1 = edgesOnVertex(1, iVertex)
+         e2 = edgesOnVertex(2, iVertex)
+         e3 = edgesOnVertex(3, iVertex)
+
+         fac_x1 = coeffs_vertex_reconstruct(1,1,iVertex)
+         fac_y1 = coeffs_vertex_reconstruct(2,1,iVertex)
+         fac_z1 = coeffs_vertex_reconstruct(3,1,iVertex)
+
+         fac_x2 = coeffs_vertex_reconstruct(1,2,iVertex)
+         fac_y2 = coeffs_vertex_reconstruct(2,2,iVertex)
+         fac_z2 = coeffs_vertex_reconstruct(3,2,iVertex)
+
+         fac_x3 = coeffs_vertex_reconstruct(1,3,iVertex)
+         fac_y3 = coeffs_vertex_reconstruct(2,3,iVertex)
+         fac_z3 = coeffs_vertex_reconstruct(3,3,iVertex)
+
+         do k=1,nVertLevels
+            u1 = u(k,e1)
+            u2 = u(k,e2)
+            u3 = u(k,e3)
+
+            ux_vert = fac_x1*u1 + fac_x2*u2 + fac_x3*u3
+            uy_vert = fac_y1*u1 + fac_y2*u2 + fac_y3*u3
+            uz_vert = fac_z1*u1 + fac_z2*u2 + fac_z3*u3
+
+            ke_vertex(k,iVertex) = 0.5_RKIND*(ux_vert*ux_vert + uy_vert*uy_vert + uz_vert*uz_vert)
+
+         end do
+      end do
+
+      ke_fact = 1.0 - .375
+
+      do iCell=cellStart,cellEnd
+         do k=1,nVertLevels
+            ke(k,iCell) = ke_fact * ke(k,iCell)
+         end do
+      end do
+
+      do iCell=cellStart,cellEnd
+         r = invAreaCell(iCell)
+         do i=1,nEdgesOnCell(iCell)
+            iVertex = verticesOnCell(i,iCell)
+            j = kiteForCell(i,iCell)
+            do k = 1,nVertLevels
+               ke(k,iCell) = ke(k,iCell) + (1.-ke_fact)*kiteAreasOnVertex(j,iVertex) * ke_vertex(k,iVertex) * r
+            end do
+         end do
+      end do
+
+   end subroutine atm_compute_solve_ke_use_vertex_reconstruct_work
 
 
    subroutine atm_init_coupled_diagnostics(state, time_lev, diag, mesh, configs, &
