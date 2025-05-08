@@ -251,8 +251,6 @@
        DO i=its,ite
        DO k=kts,kte
            
-          call mpas_log_write('obs_weights(k,i): $r ', realArgs=(/obs_weights(k,i)/))
-
           theta_p = theta_m(k,i) / (1._RKIND + rvrd * qv(k,i))
 
           if (fdda_t .and. k.gt.fdda_t_min_layer .and. (fdda_t_in_pbl .or. k.gt.kpbl(i))) then
