@@ -228,7 +228,7 @@ module atm_core_interface
       if (config_ke_use_tangent) ke_use_tangent = .true.
 
       nullify(config_ke_use_vertex_reconstructed)
-      call mpas_pool_get_config(configs, 'config_ke_vertex_use_reconstructed', config_ke_use_vertex_reconstructed)
+      call mpas_pool_get_config(configs, 'config_ke_use_vertex_reconstructed', config_ke_use_vertex_reconstructed)
 
       if (config_ke_use_vertex_reconstructed .and. .not.config_ke_use_reconstructed) then
          ierr = ierr + 1
