@@ -255,34 +255,39 @@
 
           if (fdda_t .and. k.gt.fdda_t_min_layer .and. (fdda_t_in_pbl .or. k.gt.kpbl(i))) then
              t_target = (1.0-tfrac)*th_fdda_old(k,i)+tfrac*th_fdda_new(k,i)
-             rthfddaten(k,i) = fdda_t_coef * obs_weights(i) * ( t_target - theta_p )
+             rthfddaten(k,i) = fdda_t_coef * obs_weights(k,i) * ( t_target - theta_p )
           else
              rthfddaten(k,i) = 0.
           endif
 
           if (fdda_q .and. k.gt.fdda_q_min_layer .and. (fdda_q_in_pbl .or. k.gt.kpbl(i))) then
              q_target = (1.0-tfrac)*qv_fdda_old(k,i)+tfrac*qv_fdda_new(k,i)
-             rqvfddaten(k,i) = fdda_q_coef * obs_weights(i) * ( q_target - qv(k,i) )
+             rqvfddaten(k,i) = fdda_q_coef * obs_weights(k,i) * ( q_target - qv(k,i) )
           else
              rqvfddaten(k,i) = 0.
           endif
 
           if (fdda_uv .and. k.gt.fdda_uv_min_layer .and. (fdda_uv_in_pbl .or. k.gt.kpbl(i))) then
              u_target = (1.0-tfrac)*u_fdda_old(k,i)+tfrac*u_fdda_new(k,i)
-             rufddaten(k,i) = fdda_uv_coef * obs_weights(i) * ( u_target - u(k,i) )
+             rufddaten(k,i) = fdda_uv_coef * obs_weights(k,i) * ( u_target - u(k,i) )
              v_target = (1.0-tfrac)*v_fdda_old(k,i)+tfrac*v_fdda_new(k,i)
-             rvfddaten(k,i) = fdda_uv_coef * obs_weights(i) * ( v_target - v(k,i) )
+             rvfddaten(k,i) = fdda_uv_coef * obs_weights(k,i) * ( v_target - v(k,i) )
              
              ! GTM: check where nudging is being applied, and if values are
              ! correct
-             if (obs_weights(i) /= 0.0) then
+             if (obs_weights(k,i) /= 0.0) then
                 call mpas_log_write('i: $i ', intArgs=(/i/))
                 call mpas_log_write('k: $i ', intArgs=(/k/))
                 call mpas_log_write('u_target: $r ', realArgs=(/u_target/))
+                call mpas_log_write('u_fdda_old(k,i): $r',
+realArgs=(/u_fdda_old(k,i)/))
+                call mpas_log_write('u_fdda_new(k,i): $r',
+realArgs=(/u_fdda_new(k,i)/))
+                call mpas_log_write('tfrac: $r', realArgs=(/tfrac/))
                 call mpas_log_write('u(k,i): $r ', realArgs=(/u(k,i)/))
                 call mpas_log_write('v_target: $r ', realArgs=(/v_target/))
                 call mpas_log_write('v(k,i): $r ', realArgs=(/v(k,i)/))
-                call mpas_log_write('obs_weights(i): $r ', realArgs=(/obs_weights(i)/))
+                call mpas_log_write('obs_weights(k,i): $r ', realArgs=(/obs_weights(i)/))
                 call mpas_log_write('fdda_uv_coef: $r ', realArgs=(/fdda_uv_coef/))
              endif
 
