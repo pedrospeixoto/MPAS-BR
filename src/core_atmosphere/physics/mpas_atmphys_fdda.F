@@ -272,6 +272,20 @@
              rufddaten(k,i) = fdda_uv_coef * obs_weights(i) * ( u_target - u(k,i) )
              v_target = (1.0-tfrac)*v_fdda_old(k,i)+tfrac*v_fdda_new(k,i)
              rvfddaten(k,i) = fdda_uv_coef * obs_weights(i) * ( v_target - v(k,i) )
+             
+             ! GTM: check where nudging is being applied, and if values are
+             ! correct
+             if (obs_weights(i) /= 0.0) then
+                call mpas_log_write('i: $i ', intArgs=(/i/))
+                call mpas_log_write('k: $i ', intArgs=(/k/))
+                call mpas_log_write('u_target: $r ', realArgs=(/u_target/))
+                call mpas_log_write('u(k,i): $r ', realArgs=(/u(k,i)/))
+                call mpas_log_write('v_target: $r ', realArgs=(/v_target/))
+                call mpas_log_write('v(k,i): $r ', realArgs=(/v(k,i)/))
+                call mpas_log_write('obs_weights(i): $r ', realArgs=(/obs_weights(i)/))
+                call mpas_log_write('fdda_uv_coef: $r ', realArgs=(/fdda_uv_coef/))
+             endif
+
           else
              rufddaten(k,i) = 0.
              rvfddaten(k,i) = 0.
