@@ -1608,7 +1608,7 @@
                 <var name="th_fdda_old"  type="real"  dimensions="nVertLevels nCells Time"/>
                 <var name="u_fdda_old"   type="real"  dimensions="nVertLevels nCells Time"/>
                 <var name="v_fdda_old"   type="real"  dimensions="nVertLevels nCells Time"/>
-	        <var name="obs_weights"  type="real"  dimensions="nCells"/>
+	        <var name="obs_weights"  type="real"  dimensions="nVertLevels nCells Time"/>
 	</var_struct>
 
         <var_struct name="diag" time_levs="1">
