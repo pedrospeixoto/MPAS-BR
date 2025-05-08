@@ -390,7 +390,7 @@
                 <package name="noahmp" description="Whether to process, read, and write static fields only required by Noah-MP"/>
                 <package name="custom_reconstruct" description="Active when custom coeffs_reconstruct will be used"/>
                 <package name="ke_use_tangent" description="Active when coeffs_scalar_reconstruct is need te reconstruct cell kinetic energy including the tangential component of the velocity at the edges"/>
-                <package name="ke_use_vertex_recontructed" description="Active when vertex_coeffs_reconstruct is need te reconstruct vertex velocity vector and kinetic energy."/>
+                <package name="ke_use_vertex_reconstructed" description="Active when vertex_coeffs_reconstruct is need te reconstruct vertex velocity vector and kinetic energy."/>
         </packages>
 
 

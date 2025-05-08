@@ -127,7 +127,7 @@ module atm_core_interface
       character(len=StrKIND) :: attvalue
       integer :: local_ierr
       logical, pointer :: config_ke_use_tangent, ke_use_tangent, config_ke_use_reconstructed
-      logical, pointer :: config_ke_use_vertex_reconstructed, ke_use_vertex_reconstruct
+      logical, pointer :: config_ke_use_vertex_reconstructed, ke_use_vertex_reconstructed
 
       ierr = 0
 
@@ -237,10 +237,10 @@ module atm_core_interface
              messageType=MPAS_LOG_ERR)
       endif
 
-      nullify(ke_use_vertex_reconstruct)
-      call mpas_pool_get_package(packages, 'ke_use_vertex_reconstructActive', ke_use_vertex_reconstruct)
+      nullify(ke_use_vertex_reconstructed)
+      call mpas_pool_get_package(packages, 'ke_use_vertex_reconstructedActive', ke_use_vertex_reconstructed)
 
-      if (config_ke_use_vertex_reconstructed) ke_use_vertex_reconstruct = .true.
+      if (config_ke_use_vertex_reconstructed) ke_use_vertex_reconstructed = .true.
 
 
    end function atm_setup_packages
