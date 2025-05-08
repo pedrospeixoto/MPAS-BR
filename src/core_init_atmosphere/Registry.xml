@@ -485,7 +485,7 @@
                         <var name="cell_gradient_coef_y" packages="gwd_stage_in;vertical_stage_in;met_stage_in"/>
                         <var name="coeffs_reconstruct" packages="gwd_stage_in;vertical_stage_in;met_stage_in;custom_reconstruct"/>
                         <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
-                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontruct"/>
+                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontructed"/>
                         <var name="cf1" packages="met_stage_in"/>
                         <var name="cf2" packages="met_stage_in"/>
                         <var name="cf3" packages="met_stage_in"/>
@@ -592,7 +592,7 @@
                         <var name="cell_gradient_coef_y"/>
                         <var name="coeffs_reconstruct"/>
                         <var name="coeffs_scalar_reconstruct" packages="ke_use_tangent"/>
-                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontruct"/>
+                        <var name="vertex_coeffs_reconstruct" packages="ke_use_vertex_recontructed"/>
                         <var name="cf1" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf2" packages="vertical_stage_out;met_stage_out"/>
                         <var name="cf3" packages="vertical_stage_out;met_stage_out"/>
