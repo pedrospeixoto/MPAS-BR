@@ -5779,7 +5779,7 @@ module atm_time_integration
 
       real (kind=RKIND), pointer :: config_apvm_upwinding
       logical, pointer :: config_ke_use_reconstructed, config_ke_use_tangent, config_ke_use_vertex_reconstructed
-      real (kind=RKIND), dimension(:,:,:), pointer :: coeffs_vertex_reconstruct
+      real (kind=RKIND), dimension(:,:,:), pointer :: vertex_coeffs_reconstruct
 
       call mpas_pool_get_config(configs, 'config_apvm_upwinding', config_apvm_upwinding)
       call mpas_pool_get_config(configs, 'config_ke_use_reconstructed', config_ke_use_reconstructed)
@@ -5849,14 +5849,14 @@ module atm_time_integration
       endif
 
       if (config_ke_use_vertex_reconstructed) then
-          call mpas_pool_get_array(mesh, 'coeffs_vertex_reconstruct', coeffs_vertex_reconstruct)
+          call mpas_pool_get_array(mesh, 'vertex_coeffs_reconstruct', vertex_coeffs_reconstruct)
 
           call atm_compute_solve_ke_use_vertex_reconstruct_work(nCells, nEdges, nVertices, &
               vertexDegree, invAreaCell, &
               kiteAreasOnVertex, kiteForCell, u, ke, &
               edgesOnVertex, verticesOnCell, nEdgesOnCell, edgesOnCell, &
               cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
-              coeffs_vertex_reconstruct)
+              vertex_coeffs_reconstruct)
       endif
 
    end subroutine atm_compute_solve_diagnostics
@@ -6369,7 +6369,7 @@ module atm_time_integration
             kiteAreasOnVertex, kiteForCell, u, ke, &
             edgesOnVertex, verticesOnCell, nEdgesOnCell, edgesOnCell, &
             cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd, &
-            coeffs_vertex_reconstruct)
+            vertex_coeffs_reconstruct)
 
       use mpas_atm_dimensions
 
@@ -6388,7 +6388,7 @@ module atm_time_integration
       integer, dimension(nCells+1), intent(in) :: nEdgesOnCell
       integer, dimension(maxEdges, nCells+1), intent(in) :: edgesOnCell
       integer, dimension(maxEdges,nCells+1), intent(in) :: kiteForCell
-      real (kind=RKIND), dimension(3,vertexDegree,nVertices+1), intent(in) :: coeffs_vertex_reconstruct
+      real (kind=RKIND), dimension(3,vertexDegree,nVertices+1), intent(in) :: vertex_coeffs_reconstruct
 
       integer, intent(in) :: cellStart, cellEnd, vertexStart, vertexEnd, edgeStart, edgeEnd
 
@@ -6410,17 +6410,17 @@ module atm_time_integration
          e2 = edgesOnVertex(2, iVertex)
          e3 = edgesOnVertex(3, iVertex)
 
-         fac_x1 = coeffs_vertex_reconstruct(1,1,iVertex)
-         fac_y1 = coeffs_vertex_reconstruct(2,1,iVertex)
-         fac_z1 = coeffs_vertex_reconstruct(3,1,iVertex)
+         fac_x1 = vertex_coeffs_reconstruct(1,1,iVertex)
+         fac_y1 = vertex_coeffs_reconstruct(2,1,iVertex)
+         fac_z1 = vertex_coeffs_reconstruct(3,1,iVertex)
 
-         fac_x2 = coeffs_vertex_reconstruct(1,2,iVertex)
-         fac_y2 = coeffs_vertex_reconstruct(2,2,iVertex)
-         fac_z2 = coeffs_vertex_reconstruct(3,2,iVertex)
+         fac_x2 = vertex_coeffs_reconstruct(1,2,iVertex)
+         fac_y2 = vertex_coeffs_reconstruct(2,2,iVertex)
+         fac_z2 = vertex_coeffs_reconstruct(3,2,iVertex)
 
-         fac_x3 = coeffs_vertex_reconstruct(1,3,iVertex)
-         fac_y3 = coeffs_vertex_reconstruct(2,3,iVertex)
-         fac_z3 = coeffs_vertex_reconstruct(3,3,iVertex)
+         fac_x3 = vertex_coeffs_reconstruct(1,3,iVertex)
+         fac_y3 = vertex_coeffs_reconstruct(2,3,iVertex)
+         fac_z3 = vertex_coeffs_reconstruct(3,3,iVertex)
 
          do k=1,nVertLevels
             u1 = u(k,e1)
