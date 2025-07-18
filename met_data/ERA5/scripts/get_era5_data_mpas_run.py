@@ -22,6 +22,7 @@ Contact:
 
 import os
 import cdsapi
+import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -116,7 +117,7 @@ def download_for_time_range(start_date, end_date, time_interval, area, output_di
     """
     Downloads data for all time steps within a given date range for regional simulations.
     """
-    time_steps = generate_time_steps(start_date, end_date, time_interval)
+    time_steps = np.unique(generate_time_steps(start_date, end_date, time_interval))
     for single_date in (start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)):
         date_str = single_date.strftime('%Y-%m-%d')
         for time in time_steps:
