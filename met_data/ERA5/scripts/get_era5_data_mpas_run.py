@@ -152,7 +152,7 @@ def download_for_single_timestep(start_date, end_date, time_interval, area, outp
 if __name__ == "__main__":
     # Simulation setup:
     start_date = datetime.strptime('2014-01-25 00:00', '%Y-%m-%d %H:%M') # Simulation start date
-    end_date = datetime.strptime('2014-06-02 00:00', '%Y-%m-%d %H:%M') # Simulation end date
+    end_date = datetime.strptime('2014-02-06 00:00', '%Y-%m-%d %H:%M') # Simulation end date
 
     # Simulation type setup ('global' or 'regional')
     simulation_type = 'regional'  # Choose 'global' or 'regional'
