@@ -122,8 +122,17 @@ def download_for_time_range(start_date, end_date, time_interval, area, output_di
         for time in time_steps:
             target_filename_pl = f'{output_dir}/era5_pl_{date_str}_{time.replace(":", "")}.grib'
             target_filename_sl = f'{output_dir}/era5_sl_{date_str}_{time.replace(":", "")}.grib'
-            download_era5_pressure_data(date_str, time, area, target_filename_pl)
-            download_era5_surface_data(date_str, time, area, target_filename_sl)
+            # Check if the files already exist before downloading
+            if os.path.exists(target_filename_pl) and os.path.exists(target_filename_sl):
+                print(f"Files already exist: {target_filename_pl} and {target_filename_sl}. Skipping download.")
+                continue
+            else:
+                download_era5_pressure_data(date_str, time, area, target_filename_pl)
+
+            if os.path.exists(target_filename_sl):
+                print(f"Files already exist: {target_filename_sl}. Skipping download.")
+            else:
+                download_era5_surface_data(date_str, time, area, target_filename_sl)
 
     if download_sst:
         sst_filename = f'{output_dir}/era5_sst_{start_date.strftime("%Y%m%d")}-{end_date.strftime("%Y%m%d")}.grib'
