@@ -130,13 +130,11 @@ def download_for_time_range(start_date, end_date, time_interval, area, output_di
             # Check if the files already exist before downloading
             if os.path.exists(target_filename_pl):
                 print(f"Files already exist: {target_filename_pl}. Skipping download.")
-                continue
             else:
                 download_era5_pressure_data(date_str, time, area, target_filename_pl)
             
             if os.path.exists(target_filename_sl):
                 print(f"Files already exist: {target_filename_sl}. Skipping download.")
-                continue
             else:
                 download_era5_surface_data(date_str, time, area, target_filename_sl)
 
