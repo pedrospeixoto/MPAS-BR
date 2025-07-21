@@ -37,9 +37,13 @@ def download_era5_surface_data(date, time, area, target_filename):
     request = {
         'product_type': ['reanalysis'],
         'variable': [
-            '10m_u_component_of_wind', '10m_v_component_of_wind', '2m_dewpoint_temperature',
-            '2m_temperature', 'land_sea_mask', 'mean_sea_level_pressure', 'sea_ice_cover',
-            'sea_surface_temperature', 'skin_temperature', 'snow_depth', 'surface_pressure',
+            '10m_u_component_of_wind','10m_v_component_of_wind','2m_dewpoint_temperature',
+            '2m_temperature','land_sea_mask','mean_sea_level_pressure',
+            'sea_ice_cover','sea_surface_temperature','skin_temperature',
+            'snow_depth','soil_temperature_level_1','soil_temperature_level_2',
+            'soil_temperature_level_3','soil_temperature_level_4','surface_pressure',
+            'volumetric_soil_water_layer_1','volumetric_soil_water_layer_2','volumetric_soil_water_layer_3',
+            'volumetric_soil_water_layer_4'
         ],
         'year': [date[:4]],
         'month': [date[5:7]],
@@ -124,11 +128,16 @@ def download_for_time_range(start_date, end_date, time_interval, area, output_di
             target_filename_pl = f'{output_dir}/era5_pl_{date_str}_{time.replace(":", "")}.grib'
             target_filename_sl = f'{output_dir}/era5_sl_{date_str}_{time.replace(":", "")}.grib'
             # Check if the files already exist before downloading
-            if os.path.exists(target_filename_pl) and os.path.exists(target_filename_sl):
-                print(f"Files already exist: {target_filename_pl} and {target_filename_sl}. Skipping download.")
+            if os.path.exists(target_filename_pl):
+                print(f"Files already exist: {target_filename_pl}. Skipping download.")
                 continue
             else:
                 download_era5_pressure_data(date_str, time, area, target_filename_pl)
+            
+            if os.path.exists(target_filename_sl):
+                print(f"Files already exist: {target_filename_sl}. Skipping download.")
+                continue
+            else:
                 download_era5_surface_data(date_str, time, area, target_filename_sl)
 
     if download_sst:
