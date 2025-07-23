@@ -43,7 +43,7 @@ def download_era5_surface_data(date, time, area, target_filename):
             'snow_depth','soil_temperature_level_1','soil_temperature_level_2',
             'soil_temperature_level_3','soil_temperature_level_4','surface_pressure',
             'volumetric_soil_water_layer_1','volumetric_soil_water_layer_2','volumetric_soil_water_layer_3',
-            'volumetric_soil_water_layer_4'
+            'volumetric_soil_water_layer_4', 'geopotential'
         ],
         'year': [date[:4]],
         'month': [date[5:7]],
