@@ -355,7 +355,7 @@ def close_plot(fig=None, size_fig=None, pdf=None, outfile=None,
 
 
 def plot_mpas_darray(ds, vname, time=None, level=None, ax=None, outfile=None, 
-                     title=None, plotEdge=True, clip=False, gridfile=None, **kwargs):
+                     title=None, plotEdge=True, clip=False, gridfile=None, lat_min=None, lat_max=None, lon_min=None, lon_max=None, **kwargs):
     
     ## plot_mpas_darray
     da = ds[vname]
@@ -386,7 +386,11 @@ def plot_mpas_darray(ds, vname, time=None, level=None, ax=None, outfile=None,
     print(da)
     print()
 
-    ax.set_extent([-180.0, 180,-90.0, 90.0], crs=ccrs.PlateCarree())
+    # Ajusta o domínio espacial se limites de zoom forem fornecidos
+    if (lat_min is not None and lat_max is not None and lon_min is not None and lon_max is not None):
+        ax.set_extent([lon_min, lon_max, lat_min, lat_max], crs=ccrs.PlateCarree())
+    else:
+        ax.set_extent([-180.0, 180, -90.0, 90.0], crs=ccrs.PlateCarree())
     
     plot_kwargs = set_plot_kwargs(da=da, clip=clip, **kwargs)
     
@@ -416,6 +420,10 @@ def view_mpas_mesh(mpas_grid_file, outfile=None,
                             plotEdge=True,
                             clip=False,
                             gridfile=None,
+                            lat_min=None,
+                            lat_max=None,
+                            lon_min=None,
+                            lon_max=None,
                             **kwargs):
     
     ds = open_mpas_file(mpas_grid_file)
@@ -440,7 +448,9 @@ def view_mpas_mesh(mpas_grid_file, outfile=None,
                 
     plot_mpas_darray(ds, vname, time=time, level=level, ax=ax, 
                      title=tit, plotEdge=plotEdge, clip=clip,
-                     gridfile=gridfile)
+                     gridfile=gridfile,
+                     lat_min=lat_min, lat_max=lat_max, lon_min=lon_min, lon_max=lon_max,
+                     **kwargs)
     
     close_plot(outfile=outfile)
         
@@ -500,6 +510,12 @@ if __name__ == "__main__":
         + " infile (.nc; for use only when infile does not contain these properties)",
     )
 
+    # Zoom arguments
+    parser.add_argument("-lat_min", type=float, default=None, help="Minimum latitude for zoom")
+    parser.add_argument("-lat_max", type=float, default=None, help="Maximum latitude for zoom")
+    parser.add_argument("-lon_min", type=float, default=None, help="Minimum longitude for zoom")
+    parser.add_argument("-lon_max", type=float, default=None, help="Maximum longitude for zoom")
+
     args = parser.parse_args()
     
 
@@ -518,4 +534,5 @@ if __name__ == "__main__":
 
     view_mpas_mesh(args.infile, outfile=args.outfile, time=args.time, 
                    level=args.level, vname=args.var, plotEdge=plotEdge,
-                   clip=clip, gridfile=args.gridfile)
+                   clip=clip, gridfile=args.gridfile,
+                   lat_min=args.lat_min, lat_max=args.lat_max, lon_min=args.lon_min, lon_max=args.lon_max)
