@@ -113,3 +113,4 @@ local_software/people/*
 met_data/ERA5/scripts/APIs/*
 .vscode
 grids/utilities/convert_nc_grid_to_xyz/convert_grid_to_xyz
+post_proc/py/plot_scalar_on_native_grid/*.png
