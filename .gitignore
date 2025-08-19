@@ -92,7 +92,7 @@ post_proc/py/geometry_lat_lon_2d_plot/patches
 grids/grids/Catarina_250-8km/*
 grids/grids/res*/*
 grids/grids/x1.*.cvt.part.*
-
+pre_proc/vtx-mpas-meshes/vtxmpasmeshes/__pycache__/*
 
 # ignore benchmarks created
 benchmarks/Catarina_physics-test/*
