@@ -1,0 +1,106 @@
+# 0- Global parameters
+## Folder containing MPAS-BR
+mpas_dir=/parent/folder/MPAS-BR
+## Folder containing template simulation scripts
+simulation_template_scripts_dir=/parent/folder/MPAS-BR/simulation_scripts
+## Folder containing default input files for MPAS (namelists, etc)
+config_files_dir=/parent/folder/MPAS-BR/default_inputs
+## Folder where experiment will be run
+exp_dir=/experiment/folder
+## Number of partitions for running simulations
+N=16
+
+# 1- Mesh parameters
+## Folder containing vtx-mpas-meshes to generate meshes
+vtx_mpas_meshes_dir=/parent/folder/MPAS-BR/pre_proc/vtx-mpas-meshes
+## Folder to save generated meshes
+meshes_dir=/folder/to/save/meshes
+## Coordinates of mesh center
+lon=-7.73
+lat=39.7136
+## Inner and outer radius (km)
+inner_radius=192
+outer_radius=600
+## Number of external layers for r > outer_radius
+n_layers=8
+## High resolution for r < inner_radius
+high_res=3
+## Low resolution for r > outer_radius
+low_res=30
+## Whether to cut regional mesh
+do_regional=y
+## Grid type (doughnut/constant)
+grid_type=doughnut
+
+# 2 - Static file parameters
+## Folder containing geographical data for static files
+geog_data_dir=/parent/folder/MPAS-BR/local_software/people/duda/files/mpas/geog
+## Folder to save generated static files
+static_files_dir=/folder/to/save/static_files
+
+# 3 - Parameters to download raw data
+raw_input_data_dir=/folder/to/save/data/raw/ERA5/data_20170403_18h_to_20170405_00h
+
+# 4 - Parameters for creating intermediate files
+## Path to script for creating intermediate files from ERA5 data (https://github.com/NCAR/era5_to_int)
+era5_to_int_dir=/parent/folder/MPAS-BR/pre_proc/era5_to_int
+intermediate_input_data_dir=/folder/to/save/data/intermediate/ERA5
+data_name=ERA5
+date1=2017-04-03
+time1=18:00:00
+date2=2017-04-05
+time2=00:00:00
+## Interval for generating intermediate data files (s)
+dt_files=3600
+
+# 5 - Parameters for generating vert grid, initial conditions, FDDA files (for nudging, if applicable)
+## Number of nudging time stamps (number of times nudging will get called, if applicable)
+n_nudging=30
+## Number of vertical levels
+nvertlevels=38
+## Height of maximum level (m)
+ztop=30000.0
+## Whether to blend body terrain
+blend_bdy_terrain=true
+
+# 6 - Parameters for generating sfc update files (if applicable)
+apply_sfc_update=false
+sfc_interval=none
+
+# 7 - Parameters for generating lateral boundary conditions (if regional simulation)
+## Interval for generating lbcs (s)
+lbcs_interval=3600
+
+# 8 - Parameters for running atmosphere model
+restart_output_interval=06:00:00
+fdda_output_interval=01:00:00
+history_output_interval=01:00:00
+diag_output_interval=30:00:00
+config_dt=10
+config_run_duration=30:00:00
+config_len_disp=3000.0
+config_apply_lbcs=true
+config_do_restart=false
+config_sst_update=false
+config_sstdiurn_update=false
+config_deepsoiltemp_update=false
+config_radtlw_interval=00:10:00
+config_radtsw_interval=00:10:00
+config_bucket_update=none
+config_physics_suite=convection_permitting
+config_microp_scheme=off
+config_gwdo_scheme=off
+config_fdda_scheme=analysis
+config_fdda_t=true
+config_fdda_q=true
+config_fdda_uv=true
+config_fdda_t_coef=0.
+config_fdda_q_coef=0.
+config_fdda_uv_coef=0.0003
+config_fdda_t_in_pbl=true
+config_fdda_q_in_pbl=true
+config_fdda_uv_in_pbl=true
+config_fdda_t_min_layer=0
+config_fdda_q_min_layer=0
+config_fdda_uv_min_layer=0
+# Automatic additions
