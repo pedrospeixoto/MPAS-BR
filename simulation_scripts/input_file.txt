@@ -27,7 +27,7 @@ n_layers=8
 high_res=3
 ## Low resolution for r > outer_radius
 low_res=30
-## Whether to cut regional mesh
+## Whether to cut regional mesh (y/n)
 do_regional=y
 ## Grid type (doughnut/constant)
 grid_type=doughnut
