@@ -81,6 +81,9 @@ if not os.path.exists(OUTPUT_DIR):
     os.system(f'mkdir {OUTPUT_DIR}')
 os.system(f'mv {regional_mesh} {regional_mesh_info} {regional_mesh_plots} {OUTPUT_DIR}')
 
+# Copy relevant files for mesh generation
+os.system(f'cp {VTX_MPAS_MESHES_DIR}/mesh* create_mesh.log {OUTPUT_DIR}')
+
 # Create block decomposition file
 print ('N:',args.N)
 os.system(f'gpmetis -minconn -contig -niter=200 {OUTPUT_DIR}/{name}.region.grid.graph.info {args.N}')
