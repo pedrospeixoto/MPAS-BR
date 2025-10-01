@@ -38,6 +38,7 @@ restart_timestamp
 # Text files (For statistical output from ocean model)
 *.txt
 !CMakeLists.txt
+!input_file.txt
 
 # Directories with individual .gitignore files are:
 # src/external (Externals might have a different compilation method)
@@ -70,6 +71,7 @@ benchmarks/__pycache__/*
 grids/utilities/jigsaw/__pycache__/*
 post_proc/py/geometry_lat_lon_2d_plot/__pycache__/*
 post_proc/py/__pycache__/
+*.pyc
 
 src/core_*/inc
 .DS_Store
@@ -79,6 +81,7 @@ grids/utilities/jigsaw/Catarina_250-8km/*e.png
 post_proc/py/geometry_lat_lon_2d_plot/*.png
 grids/utilities/jigsaw/Catarina_250-8km/*.png
 post_proc/py/grid_maps/*.png
+*.png
 
 # ignore grids generated
 grids/utilities/jigsaw/Catarina_250-8km/
@@ -90,7 +93,7 @@ post_proc/py/geometry_lat_lon_2d_plot/patches
 grids/grids/Catarina_250-8km/*
 grids/grids/res*/*
 grids/grids/x1.*.cvt.part.*
-
+pre_proc/vtx-mpas-meshes/vtxmpasmeshes/__pycache__/*.pyc
 
 # ignore benchmarks created
 benchmarks/Catarina_physics-test/*
